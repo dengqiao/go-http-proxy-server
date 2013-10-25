@@ -1,6 +1,6 @@
 ## dengqiao/go-http-proxy-server
 
-`dengqiao/go-http-proxy-server` is a http reverse proxy server write with golang,based on json config
+dengqiao/go-http-proxy-server` is a http reverse proxy server write with golang,based on json config
 
 ## Requirements
 http-proxy-server is write with golang,[so you'll want to have golang installed as well](http://golang.org/doc/install)
@@ -9,6 +9,7 @@ http-proxy-server is write with golang,[so you'll want to have golang installed 
 ```sh
 $ git clone git clone https://github.com/dengqiao/go-http-proxy-server.git
 cp go-http-proxy-server to your gopath 
+cd gopath/go-http-proxy-server
 go build
 vi config.json  
 add content example
