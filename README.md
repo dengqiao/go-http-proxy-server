@@ -3,7 +3,7 @@
 `dengqiao/go-http-proxy-server` is a http reverse proxy server write with golang,based on json config
 
 ## Requirements
-http-proxy-server is write with golang,[so you'll want to have Node installed as well](http://golang.org/doc/install)
+http-proxy-server is write with golang,[so you'll want to have golang installed as well](http://golang.org/doc/install)
 
 ## Installation
 ```sh
