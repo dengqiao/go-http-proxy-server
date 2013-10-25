@@ -11,7 +11,7 @@ $ git clone git clone https://github.com/dengqiao/go-http-proxy-server.git
 cp go-http-proxy-server to your gopath 
 go build
 vi config.json  
-content example
+add content example
 {	
 	"Upstreams":[
 		{
@@ -31,5 +31,9 @@ content example
 ```
 
 ## Usage
+
+```
 cd go-http-proxy-server path
+./go-http-proxy-server --help
 ./go-http-proxy-server --port=8888
+```
