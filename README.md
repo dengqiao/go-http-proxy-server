@@ -36,4 +36,6 @@ add content example
 cd go-http-proxy-server
 ./go-http-proxy-server --help
 ./go-http-proxy-server --port=8888
+
+access http://ip:port/status get proxy server status
 ```
