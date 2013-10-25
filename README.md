@@ -7,7 +7,7 @@ http-proxy-server is write with golang,[so you'll want to have golang installed 
 
 ## Installation
 ```sh
-$ git clone git clone https://github.com/dengqiao/go-http-proxy-server.git
+$ git clone https://github.com/dengqiao/go-http-proxy-server.git
 cp go-http-proxy-server to your gopath 
 cd gopath/go-http-proxy-server
 go build
