@@ -33,7 +33,7 @@ add content example
 ## Usage
 
 ```
-cd go-http-proxy-server path
+cd go-http-proxy-server
 ./go-http-proxy-server --help
 ./go-http-proxy-server --port=8888
 ```
