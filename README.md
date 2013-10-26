@@ -36,7 +36,8 @@ add content example
 ```
 cd go-http-proxy-server
 ./go-http-proxy-server --help
-./go-http-proxy-server --port=8888 --proxy_connection_timeout=5 --proxy_timeout=30 --proxy_buffer_size=8192
+./go-http-proxy-server --port=8888 --proxy_connection_timeout=5 
+   --proxy_timeout=30 --proxy_buffer_size=8192
 
 access http://ip:port/status get proxy server status
 ```
