@@ -11,8 +11,9 @@ $ git clone https://github.com/dengqiao/go-http-proxy-server.git
 cp go-http-proxy-server to your gopath 
 cd gopath/go-http-proxy-server
 go build
+./go-http-proxy-server //if first run,will generate config template
 vi config.json  
-add content example
+update content example
 {	
 	"Upstreams":[
 		{
