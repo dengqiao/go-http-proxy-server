@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"net"
 	"net/http"
 	"os"
 	"runtime"
@@ -24,6 +25,9 @@ var client *http.Client
 var defaultService *Service
 var startTime time.Time
 var port int
+var proxy_connection_timeout int
+var proxy_timeout int
+var proxy_buffer_size int
 
 type UpstreamConfig struct {
 	Name      string
@@ -81,23 +85,20 @@ func newService(serviceConfig *ServiceConfig) {
 }
 
 func init() {
+	startTime = time.Now()
 	flag.Usage = func() {
 		fmt.Println(usageTemplate)
 	}
 	flag.IntVar(&port, "port", 8888, "proxy server port.")
+	flag.IntVar(&proxy_connection_timeout, "proxy_connection_timeout", 5, "proxy  connect real http server  timeout second")
+	flag.IntVar(&proxy_timeout, "proxy_timeout", 30, "proxy  read write real http server  timeout second")
+	flag.IntVar(&proxy_buffer_size, "proxy_buffer_size", 8*1024, "proxy  read write real http server buffer size")
 	flag.Parse()
 	upstreamMap = make(map[string]*Upstream)
 	router = make(map[string]*Service)
 	loadConfig()
+	initHttpClient()
 
-	tr := &http.Transport{
-		ResponseHeaderTimeout: 30 * time.Second,
-		MaxIdleConnsPerHost:   10,
-	}
-	client = &http.Client{
-		Transport: tr,
-	}
-	startTime = time.Now()
 }
 
 func loadConfig() {
@@ -125,6 +126,27 @@ func loadConfig() {
 	for _, service := range config.Services {
 		newService(service)
 	}
+}
+
+func initHttpClient() {
+	dialFunc := func(network, addr string) (conn net.Conn, err error) {
+		conn, err = net.DialTimeout(network, addr, time.Duration(proxy_connection_timeout)*time.Second)
+		if err != nil {
+			return
+		}
+		tcpConn, ok := conn.(*net.TCPConn)
+		if ok {
+			tcpConn.SetReadBuffer(proxy_buffer_size)
+			tcpConn.SetWriteBuffer(proxy_buffer_size)
+		}
+		return
+	}
+	tr := &http.Transport{
+		MaxIdleConnsPerHost: 10,
+		Dial:                dialFunc,
+		ResponseHeaderTimeout: time.Duration(proxy_timeout) * time.Second,
+	}
+	client = &http.Client{Transport: tr}
 }
 
 func doCheck(upstream *Upstream, failhost string) {
@@ -264,11 +286,10 @@ func proxyService(service *Service, w http.ResponseWriter, r *http.Request) {
 	host0 := host[0]
 	if len(host) > 1 {
 		index := rand.Int31n(int32(len(host)))
-		//fmt.Printf("len %d rand index %d\n", len(host), index)
 		host0 = host[index]
 	}
 	service.Upstream.Lock.RUnlock()
-	fmt.Printf("request path " + r.URL.Path + " find host " + host0 + "\n")
+	//fmt.Printf("request path " + r.URL.Path + " find host " + host0 + "\n")
 	startTime := time.Now().UnixNano()
 	var resp *http.Response
 	var err error
@@ -368,8 +389,8 @@ func counter(service *Service, ok bool, startTime int64) {
 		return
 	}
 	cost := uint64((time.Now().UnixNano() - startTime) / 1000000)
-	succCount := atomic.AddUint64(&service.SuccCount, 1)
-	totoalTime := atomic.AddUint64(&service.TotoalTime, cost)
+	atomic.AddUint64(&service.SuccCount, 1)
+	atomic.AddUint64(&service.TotoalTime, cost)
 	maxTime := atomic.LoadUint64(&service.MaxTime)
 	if maxTime < cost {
 		atomic.CompareAndSwapUint64(&service.MaxTime, maxTime, cost)
@@ -378,15 +399,16 @@ func counter(service *Service, ok bool, startTime int64) {
 	if minTime == 0 || minTime > cost {
 		atomic.CompareAndSwapUint64(&service.MinTime, minTime, cost)
 	}
-	fmt.Printf("proxy request ok,cost %v ms,max time %v,min time %v,avg time %v\n",
-		cost, maxTime, minTime, totoalTime/succCount)
 }
 
 var usageTemplate = `http-proxy-server is a http reverse proxy server write with golang
 Usage:
-
-	http-proxy-server --port=8888
-	
+    ./http-proxy-server [option]
+	./http-proxy-server --port=8888 --proxy_connection_timeout=5 --proxy_timeout=30 --proxy_buffer_size=8*1024
+	port                     --listen port default 8888
+	proxy_connection_timeout --proxy connect real server timeout default 5s
+	proxy_timeout            --proxy connect real server response timeout default 30s
+	proxy_buffer_size        --proxy connect real server socket read/write buffer size default 8*1024
 	current path must exist config.json file, definition proxy rule ,it is json format,For example
 ` + jsonConfigTemplate
 var jsonConfigTemplate = `
