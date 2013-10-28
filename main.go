@@ -185,11 +185,12 @@ func checker(upstream *Upstream) {
 		FailHosts := upstream.FailHosts
 		upstream.Lock.RUnlock()
 		succHosts := make([]string, 0)
+		failHosts := make([]string, 0)
 		if len(FailHosts) > 0 {
 			for _, host := range FailHosts {
 				resp, err := client.Get(host + upstream.CheckUrl)
 				if err != nil {
-
+					failHosts = append(failHosts, host)
 					continue
 				}
 				ioutil.ReadAll(resp.Body)
@@ -199,16 +200,8 @@ func checker(upstream *Upstream) {
 			}
 			if len(succHosts) > 0 {
 				upstream.Lock.Lock()
-				newHosts := make([]string, 0)
-				for _, succHost := range succHosts {
-					for _, host := range upstream.Hosts {
-						if host != succHost {
-							newHosts = append(newHosts, host)
-						}
-					}
-					newHosts = append(newHosts, succHost)
-				}
-				upstream.Hosts = newHosts
+				upstream.Hosts = append(upstream.Hosts, succHosts...)
+				upstream.FailHosts = failHosts
 				upstream.Lock.Unlock()
 			}
 		}
