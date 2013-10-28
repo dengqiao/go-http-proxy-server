@@ -399,7 +399,8 @@ func counter(service *Service, ok bool, startTime int64) {
 var usageTemplate = `http-proxy-server is a http reverse proxy server write with golang
 Usage:
     ./http-proxy-server [option]
-	./http-proxy-server --port=8888 --proxy_connection_timeout=5 --proxy_timeout=30 --proxy_buffer_size=8*1024
+	./http-proxy-server --port=8888 --proxy_connection_timeout=5 --proxy_timeout=30 
+	        --proxy_buffer_size=8192
 	port                     --listen port default 8888
 	proxy_connection_timeout --proxy connect real server timeout default 5s
 	proxy_timeout            --proxy connect real server response timeout default 30s
