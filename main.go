@@ -90,9 +90,12 @@ func init() {
 		fmt.Println(usageTemplate)
 	}
 	flag.IntVar(&port, "port", 8888, "proxy server port.")
-	flag.IntVar(&proxy_connection_timeout, "proxy_connection_timeout", 5, "proxy  connect real http server  timeout second")
-	flag.IntVar(&proxy_timeout, "proxy_timeout", 30, "proxy  read write real http server  timeout second")
-	flag.IntVar(&proxy_buffer_size, "proxy_buffer_size", 8*1024, "proxy  read write real http server buffer size")
+	flag.IntVar(&proxy_connection_timeout, "proxy_connection_timeout", 5,
+		"proxy  connect real http server  timeout second")
+	flag.IntVar(&proxy_timeout, "proxy_timeout", 30,
+		"proxy  read write real http server  timeout second")
+	flag.IntVar(&proxy_buffer_size, "proxy_buffer_size", 8*1024,
+		"proxy  read write real http server buffer size")
 	flag.Parse()
 	upstreamMap = make(map[string]*Upstream)
 	router = make(map[string]*Service)
