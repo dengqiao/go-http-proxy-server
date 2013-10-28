@@ -357,6 +357,7 @@ func serverStatus(w http.ResponseWriter, r *http.Request) {
 			upstream["hosts"] = service.Upstream.Hosts
 			service.Upstream.Lock.RUnlock()
 			upstreams = append(upstreams, upstream)
+			upstreamMap[service.Upstream.Name] = true
 		}
 		SuccCount := atomic.LoadUint64(&service.SuccCount)
 		service0 := make(map[string]interface{})
