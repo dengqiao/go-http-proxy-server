@@ -254,7 +254,7 @@ func (_ proxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		prefix := strings.Join(subPaths[:i], "/")
 		service, ok = router[prefix]
 		if ok {
-			fmt.Printf("path %v prefix %v index %d\n ", path, prefix, i)
+			//fmt.Printf("path %v prefix %v index %d\n ", path, prefix, i)
 			proxyService(service, w, r)
 			return
 		}
