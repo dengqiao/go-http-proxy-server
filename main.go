@@ -278,6 +278,7 @@ func (_ proxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func proxyService(service *Service, w http.ResponseWriter, r *http.Request) {
 	service.Upstream.Lock.RLock()
 	host := service.Upstream.Hosts
+	service.Upstream.Lock.RUnlock()
 	if len(host) == 0 {
 		atomic.AddUint64(&service.FailCount, 1)
 		http.Error(w, "proxy err ,no available service host,please check", 502)
@@ -288,7 +289,7 @@ func proxyService(service *Service, w http.ResponseWriter, r *http.Request) {
 		index := rand.Int31n(int32(len(host)))
 		host0 = host[index]
 	}
-	service.Upstream.Lock.RUnlock()
+
 	//fmt.Printf("request path " + r.URL.Path + " find host " + host0 + "\n")
 	startTime := time.Now().UnixNano()
 	var resp *http.Response
@@ -408,7 +409,7 @@ Usage:
 	port                     --listen port default 8888
 	proxy_connection_timeout --proxy connect real server timeout default 5s
 	proxy_timeout            --proxy connect real server response timeout default 30s
-	proxy_buffer_size        --proxy connect real server socket read/write buffer size default 8*1024
+	proxy_buffer_size        --proxy connect real server socket read/write buffer size default 8192
 	current path must exist config.json file, definition proxy rule ,it is json format,For example
 ` + jsonConfigTemplate
 var jsonConfigTemplate = `
@@ -431,6 +432,7 @@ var jsonConfigTemplate = `
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU() + 1)
+	fmt.Printf("proxy server listen on port %d\n", port)
 	s := &http.Server{
 		Addr:           ":" + strconv.Itoa(port),
 		Handler:        proxyHandler{},
